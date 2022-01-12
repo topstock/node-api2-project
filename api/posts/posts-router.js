@@ -50,7 +50,6 @@ router.post('/', async (req, res) => {
           res.status(400).json({message: "Please provide title and contents for the post"})
         } else {
           const {id} = await insert(req.body)
-          console.log("inserted", id)
           const newPost = await findById(id)
           res.status(201).json({ ...newPost})
         }
@@ -59,6 +58,38 @@ router.post('/', async (req, res) => {
       }
 })
 
+router.put('/:id', async (req, res) => {
+  const id = req.params.id
+  const idPost = await findById(id)
+  try {
+    if ((typeof idPost) === 'undefined') {
+        res.status(404).json({ message: "The post with the specified ID does not exist"})
+    } else if (!req.body.title || !req.body.contents) {
+        res.status(400).json({message: "Please provide title and contents for the post"})
+    } else {
+      await update(id, req.body)
+      console.log("updated", id)
+      const updatedPost = await findById(id)
+      res.status(201).json({ ...updatedPost})
+    }
+  } catch(err) {
+    res.status(500).json({ message: "The post information could not be modified" })
+  }
+})
+
+router.delete('/:id', async (req, res) => {
+    const idPost = await findById(id)
+    try {
+        if ((typeof idPost) === 'undefined') {
+            res.status(404).json({ message: "The post with the specified ID does not exist"})
+        } else {
+            await remove(id)
+            res.status(200).json({ message: `The server removed the post with id: ${id}` })
+        }
+    } catch {
+        res.status(500).json({ message: "The post could not be removed" })
+    }
+})
 router.get('*', (req, res) => {
   res.status(404).json({ message: "The post with the specified ID does not exist" })
 })
