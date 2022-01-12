@@ -14,6 +14,8 @@ const {
 
 const router = express.Router()
 
+router.use(express.json())
+
 router.get('/:id/comments', (req, res) => {
     res.send('just the comments of one id!')
 })
@@ -44,12 +46,13 @@ router.get('/', async (req, res) => {
   
 router.post('/', async (req, res) => {
     try {
-        if (!req.body.bio || !req.body.name) {
+        if (!req.body.title || !req.body.contents) {
           res.status(400).json({message: "Please provide title and contents for the post"})
         } else {
           const {id} = await insert(req.body)
+          console.log("inserted", id)
           const newPost = await findById(id)
-          res.status(201).json(newPost)
+          res.status(201).json({ ...newPost})
         }
       } catch(err) {
         res.status(500).json({ message: "There was an error while saving the post to the database" })
